@@ -1,19 +1,10 @@
 <?php
+$host = "localhost"; // Your MySQL host
+$user = "root"; // Default user for XAMPP
+$pass = ""; // Default password (empty in XAMPP)
+$dbname = "on_duty"; // Change to your database name
 
-function dbconnection()
-{
-    $con = mysqli_connect("localhost","root","","on_duty");
-    return $con;
-    if($con)
-    {
-        echo "success";
-    }
-    else
-    {
-        echo "failure";
-    }
-}
-
-dbconnection();
+// Create a connection
+$con = mysqli_connect($host, $user, $pass, $dbname);
 
 ?>
