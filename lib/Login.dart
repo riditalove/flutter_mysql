@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:on_duty/home_page.dart';
+import 'package:on_duty/forgot.dart';
 import 'package:http/http.dart' as http;
 
 class Login extends StatefulWidget {
@@ -15,44 +17,38 @@ class _LoginState extends State<Login> {
   bool _isLoading = false;
 
   // Function to handle login API request
-Future<void> _login() async {
-  final String apiUrl = "http://10.0.2.2/on_duty/lib/login.php";
+  Future<void> _login() async {
+    final String apiUrl = "http://192.168.3.204/on_duty/lib/login.php";
 
-  try {
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      body: {
-        'email': _emailController.text,
-        'password': _passwordController.text,
-      },
-    );
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        body: {
+          'email': _emailController.text,
+          'password': _passwordController.text,
+        },
+      );
 
+      print("Raw Response: ${response.body}"); // Debugging step
 
-    print("Raw Response: ${response.body}"); // Debugging step
+      final trimmedResponse = response.body.trim(); // Remove unwanted characters
+      final data = json.decode(trimmedResponse);
 
-    // final data = jsonDecode(response.body);
-
-    final trimmedResponse = response.body.trim(); // Remove unwanted characters
-    final data = json.decode(trimmedResponse);
-    // Error happens here if JSON is invalid
-
-
-    if (response.statusCode == 200 && data['status'] == "success") {
-      print("Login sucessful");
-     
-    } else {
-
-      print("sorry");
-      print(response.statusCode);
-      _showErrorDialog(data['message']);
+      if (response.statusCode == 200 && data['status'] == "success") {
+        print("Login successful");
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      } else {
+        print("Login failed");
+        _showErrorDialog(data['message']);
+      }
+    } catch (e) {
+      _showErrorDialog("Error: $e");
+      print("Login error: $e");
     }
-  } catch (e) {
-
-    _showErrorDialog("Error: $e"); // Show error in dialog
-    print("Login error: $e"); // Debugging step
   }
-}
-
 
   // Function to show error messages
   void _showErrorDialog(String message) {
@@ -83,7 +79,7 @@ Future<void> _login() async {
                 ),
               ),
 
-              // Card Section with Text Field and Button
+              // Card Section with Text Fields and Buttons
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Card(
@@ -146,9 +142,7 @@ Future<void> _login() async {
 
                         // Login Button
                         ElevatedButton(
-                          onPressed: _isLoading
-                              ? null
-                              : _login, // Disable button while loading
+                          onPressed: _isLoading ? null : _login,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFFB3A9A0),
                             padding: EdgeInsets.symmetric(vertical: 15),
@@ -160,15 +154,37 @@ Future<void> _login() async {
                           child: _isLoading
                               ? CircularProgressIndicator(color: Colors.white)
                               : Text(
-                                  "Login",
-                                  style: TextStyle(
-                                    color: Colors.blueGrey,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                            "Login",
+                            style: TextStyle(
+                              color: Colors.blueGrey,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                         SizedBox(height: 10),
+
+                        // Forgot Password Button
+                        Center(
+                          child: TextButton(
+                            onPressed: () {
+                              // Navigate to forgot password screen or show a dialog
+                              print("Forgot Password Clicked");
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+                              );
+                            },
+                            child: Text(
+                              "Forgot Password?",
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -181,3 +197,4 @@ Future<void> _login() async {
     );
   }
 }
+
